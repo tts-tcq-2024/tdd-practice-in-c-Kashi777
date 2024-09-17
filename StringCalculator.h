@@ -1,6 +1,8 @@
 #include <stdio.h>
 
-int add(const char* numbers)
-{
-  return 0;
+int add(const char* input) {
+    if (strcmp(input, "") == 0) {
+        return 0;
+    }
+    return 0;
 }
