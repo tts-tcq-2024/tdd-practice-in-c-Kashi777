@@ -10,6 +10,16 @@ int CheckEmptyOrNullInput(const char* input)
 }
 
 
+void replaceNewlineWithDelimiter(char* modifiedInput, char* delimiter)
+{
+    // Replace newline characters with the delimiter
+    for (int i = 0; modifiedInput[i]; i++) {
+        if (modifiedInput[i] == '\n') {
+            modifiedInput[i] = *delimiter;
+        }
+    }
+}
+
 char* getModifiedInput(const char* input, char* delimiter) {
     char* modifiedInput = strdup(input);
     *delimiter = ','; // Default delimiter
@@ -20,12 +30,7 @@ char* getModifiedInput(const char* input, char* delimiter) {
         modifiedInput = modifiedInput + 4; // Skip the delimiter part (e.g., "//;\n")
     }
 
-    // Replace newline characters with the delimiter
-    for (int i = 0; modifiedInput[i]; i++) {
-        if (modifiedInput[i] == '\n') {
-            modifiedInput[i] = *delimiter;
-        }
-    }
+    replaceNewlineWithDelimiter(modifiedInput, delimiter);
 
     return modifiedInput;
 }
