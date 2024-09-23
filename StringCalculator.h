@@ -2,35 +2,32 @@
 #include <string.h>
 #include <stdlib.h>
 
-int CheckEmptyOrNullInput(const char* input) {
-    if (input == NULL || *input == '\0') {
-        return 0; // Handle null or empty input
+int CheckEmptyOrNullInput(const char* input)
+{
+    if (strcmp(input, "") == 0 || strcmp(input, "0") == 0) {
+        return 0;
     }
-
-    if (strcmp(input, "0") == 0) {
-        return 0; // Return 0 for input "0"
-    }
-
-    return 1; // Valid input
 }
 
-char* setDelimiterAndGetModifiedInput(const char* input, char* delimiter) {
+
+char* getModifiedInput(const char* input, char* delimiter) {
+    char* modifiedInput = strdup(input);
     *delimiter = ','; // Default delimiter
 
-    if (strncmp(input, "//", 2) == 0) {
-        *delimiter = input[2];  // Custom delimiter
-        return strdup(input + 4);  // Skip "//;\n"
+    if (strncmp(modifiedInput, "//", 2) == 0) {
+        // Custom delimiter found
+        *delimiter = modifiedInput[2];
+        modifiedInput = modifiedInput + 4; // Skip the delimiter part (e.g., "//;\n")
     }
 
-    return strdup(input);  // No custom delimiter
-}
-
-void replaceNewlinesWithDelimiter(char* modifiedInput, char delimiter) {
+    // Replace newline characters with the delimiter
     for (int i = 0; modifiedInput[i]; i++) {
         if (modifiedInput[i] == '\n') {
-            modifiedInput[i] = delimiter;
+            modifiedInput[i] = *delimiter;
         }
     }
+
+    return modifiedInput;
 }
 
 int processToken(char* token) {
@@ -38,20 +35,21 @@ int processToken(char* token) {
 
     if (num < 0) {
         printf("Negatives not allowed: %d\n", num);
-        return -1;
+        return -1;  // Handle negative numbers
     }
 
-    return (num <= 1000) ? num : 0;  // Ignore numbers > 1000
+    if (num <= 1000) {
+        return num;
+    }
+
+    return 0;
 }
 
 int add(const char* input) {
-    if (!CheckEmptyOrNullInput(input)) {
-        return 0;
-    }
-
+    CheckEmptyOrNullInput(input);
+    
     char delimiter;
-    char* modifiedInput = setDelimiterAndGetModifiedInput(input, &delimiter);
-    replaceNewlinesWithDelimiter(modifiedInput, delimiter);
+    char* modifiedInput = getModifiedInput(input, &delimiter);
 
     int sum = 0;
     char* token = strtok(modifiedInput, &delimiter);
@@ -59,13 +57,11 @@ int add(const char* input) {
     while (token != NULL) {
         int num = processToken(token);
         if (num == -1) {
-            free(modifiedInput);  // Free the duplicated input
-            return -1;
+            return -1;  // Return immediately on encountering a negative number
         }
         sum += num;
         token = strtok(NULL, &delimiter);
     }
 
-    free(modifiedInput);  // Free the duplicated input
     return sum;
 }
